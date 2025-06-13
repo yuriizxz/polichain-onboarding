@@ -3,11 +3,28 @@ import Image from "next/image";
 import Link from "next/link";
 import Button from  "@/components/Button";
 
+import {useState, useEffect} from 'react'
+
 
 export default function Home() {
  
- const variavel1 : number = 5;
- 
+  const [message, setMessage] = useState("")
+
+  useEffect(()=> {
+    async function loadHelloWorld(){
+      try {
+        const response = await fetch('/api/hellloworld')
+        const json = await response.json()
+
+        setMessage(json.message)
+      } catch(err){
+        console.error(err)
+      }
+    }
+    loadHelloWorld()
+  }, [])
+
+
   return (
     <div>
       <p>Teste</p>
