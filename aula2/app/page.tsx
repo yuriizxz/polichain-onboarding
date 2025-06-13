@@ -100,7 +100,7 @@ export default function Home() {
           }}
         />
         </div>
-        <a href = "/pagina2">
+        <a href = "/pagina3">
       <Button texto={'Graves'}>
       </Button>
       </a>
