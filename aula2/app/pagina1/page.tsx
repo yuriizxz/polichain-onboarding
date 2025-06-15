@@ -4,7 +4,7 @@ import Image from "next/image";
 export default function Home() {
   return (
      <div style={{backgroundImage: 'url(/imgs/Nidalee_6.jpg)',
-      position: 'fixed', // ou 'absolute'
+      position: 'fixed', 
   top: 0,
   left: 0,
   width: '100vw',
