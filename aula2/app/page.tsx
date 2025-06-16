@@ -244,10 +244,10 @@ export default function GamesPage() {
               <label style={{ fontSize: 20 }}>Resultado</label>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button
-                  style={{ backgroundColor: 'rgb(0, 128, 43, 1)', border: 'solid #006622 2px', borderRadius: '30px', width: '100px', justifyContent: 'center', fontFamily: 'Fonte2', letterSpacing: '0.05cm', fontSize: 22, fontWeight: 600 }}
+                  style={{ backgroundColor: 'rgb(0, 128, 43, 1)', border: 'solid #006622 2px', borderRadius: '30px', width: '100px', justifyContent: 'center', fontFamily: 'Fonte2', letterSpacing: '0.05cm', fontSize: 22, fontWeight: 600, cursor: 'pointer' }}
                   onClick={() => setFormData({ ...formData, result: true })}> Vitória </button>
                 <button
-                  style={{ backgroundColor: 'rgb(255, 0, 0,1)', border: 'solid #660000 2px', borderRadius: '30px', width: '100px', justifyContent: 'center', fontFamily: 'Fonte2', letterSpacing: '0.05cm', fontSize: 22, fontWeight: 600 }}
+                  style={{ backgroundColor: 'rgb(255, 0, 0,1)', border: 'solid #660000 2px', borderRadius: '30px', width: '100px', justifyContent: 'center', fontFamily: 'Fonte2', letterSpacing: '0.05cm', cursor: 'pointer', fontSize: 22, fontWeight: 600 }}
                   onClick={() => setFormData({ ...formData, result: false })}> Derrota</button>
               </div>
 
@@ -324,11 +324,11 @@ export default function GamesPage() {
               </div>
 
             </div>
-            <div style={{display:'flex', alignItems:'center', justifyContent:'center'}}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <button
                 type="submit"
-                style={{ width:'120px', height: '45px', borderRadius: '10px',fontSize:22}}
-                className= 'bg-sk bg-sky-800 hover:bg-sky-950'
+                style={{ width: '120px', height: '45px', cursor: 'pointer', borderRadius: '10px', fontSize: 22 }}
+                className='bg-sk bg-sky-800 hover:bg-sky-950'
               >
                 {editingId ? 'Atualizar' : 'Adicionar'}
               </button>
@@ -337,9 +337,9 @@ export default function GamesPage() {
           </div>
         </form>
         <div>
-          <table style={{tableLayout:'auto'}}>
+          <table style={{ tableLayout: 'auto' }}>
             <thead>
-              <tr style={{backgroundColor:'rgb(50,50,100,0.5)'}}>
+              <tr style={{ backgroundColor: 'rgb(50,50,100,0.5)' }}>
                 <th>Campeão</th>
                 <th>Role</th>
                 <th>Data</th>
@@ -349,6 +349,56 @@ export default function GamesPage() {
               </tr>
             </thead>
             <tbody>
+              {games.map((game) => (
+                <tr key={game.id} style={{ borderBottom: '1px solid #ddd' }}>
+                  <td style={{ padding: '8px 16px', border: '1px solid #ddd' }}>{game.championName}</td>
+                  <td style={{ padding: '8px 16px', border: '1px solid #ddd' }}>{game.role}</td>
+                  <td style={{ padding: '8px 16px', border: '1px solid #ddd' }}>
+                    {new Date(game.date).toLocaleDateString()}
+                  </td>
+                  <td style={{ padding: '8px 16px', border: '1px solid #ddd' }}>
+                    <span style={{
+                      fontWeight: 600,
+                      color: game.result ? '#00802b' : '#ff0000'
+                    }}>
+                      {game.result ? 'Vitória' : 'Derrota'}
+                    </span>
+                  </td>
+                  <td style={{ padding: '8px 16px', border: '1px solid #ddd' }}>
+                    {game.kills}/{game.deaths}/{game.assists}
+                  </td>
+                  <td style={{ padding: '8px 16px', border: '1px solid #ddd' }}>
+                    <button
+                      onClick={() => handleEdit(game)}
+                      style={{
+                        marginRight: '8px',
+                        color: '#0066cc',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        fontWeight: 600,
+
+                      }}
+                    >
+                      Editar
+                    </button>
+                    <button
+                      onClick={() => handleDelete(game.id!)}
+                      style={{
+                        color: '#cc0000',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontSize: '14px',
+                        fontWeight: 600
+                      }}
+                    >
+                      Remover
+                    </button>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
