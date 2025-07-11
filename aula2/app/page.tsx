@@ -106,7 +106,8 @@ export default function GamesPage() {
       }}>
 
 
-        <div style={{ display: 'flex', gap: '50px' }} >
+        <div
+        style={{ display: 'flex', gap: '50px' }} >
           <div style={{
             display: 'flex',
             gap: '20px',
@@ -244,9 +245,11 @@ export default function GamesPage() {
               <label style={{ fontSize: 20 }}>Resultado</label>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button
+                  type = "button"
                   style={{ backgroundColor: 'rgb(0, 128, 43, 1)', border: 'solid #006622 2px', borderRadius: '30px', width: '100px', justifyContent: 'center', fontFamily: 'Fonte2', letterSpacing: '0.05cm', fontSize: 22, fontWeight: 600, cursor: 'pointer' }}
                   onClick={() => setFormData({ ...formData, result: true })}> Vitória </button>
                 <button
+                  type = "button"
                   style={{ backgroundColor: 'rgb(255, 0, 0,1)', border: 'solid #660000 2px', borderRadius: '30px', width: '100px', justifyContent: 'center', fontFamily: 'Fonte2', letterSpacing: '0.05cm', cursor: 'pointer', fontSize: 22, fontWeight: 600 }}
                   onClick={() => setFormData({ ...formData, result: false })}> Derrota</button>
               </div>
@@ -354,7 +357,7 @@ export default function GamesPage() {
                   <td style={{ padding: '8px 16px', border: '1px solid #ddd' }}>{game.championName}</td>
                   <td style={{ padding: '8px 16px', border: '1px solid #ddd' }}>{game.role}</td>
                   <td style={{ padding: '8px 16px', border: '1px solid #ddd' }}>
-                    {new Date(game.date).toLocaleDateString()}
+                    {new Date(game.date).toLocaleDateString('pt-BR')}
                   </td>
                   <td style={{ padding: '8px 16px', border: '1px solid #ddd' }}>
                     <span style={{

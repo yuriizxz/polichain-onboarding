@@ -29,6 +29,9 @@ export async function POST(request: Request) {
 export async function PUT(request: Request){
     const { id, ...data} = await request.json()
 
+    if ( data.date ){
+    data.date = new Date(data.date).toISOString();
+  }
     const gameAtt = await prisma.game.update({where: {id: Number(id)}, data: {...data}})
     return NextResponse.json(gameAtt)
 }
