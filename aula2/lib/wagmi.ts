@@ -17,7 +17,7 @@ import { sepolia, hardhat } from 'wagmi/chains';
 export const config = getDefaultConfig({
   appName: 'Onboarding',
   projectId: 'e10c69a63426f38b3414511665063524',
-  chains: [hardhat],
+  chains: [hardhat, sepolia],
   ssr: true, 
 });
 
