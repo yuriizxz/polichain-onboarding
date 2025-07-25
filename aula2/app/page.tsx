@@ -2,6 +2,11 @@
 import React, { useState, useEffect } from 'react'
 import Image from "next/image";
 import Button from '@/components/button'
+import { useAccount, useWriteContract, useReadContract} from 'wagmi';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { POLICHAIN_ADDRESS, PolichainABI } from '../lib/contracts'
+import { parse } from 'path';
+
 
 type Game = {
   id?: number
@@ -14,7 +19,17 @@ type Game = {
   assists: number
 }
 
+
+
 export default function GamesPage() {
+  const {isConnected} = useAccount();
+  const { 
+    writeContract,
+    isPending,
+    isSuccess,
+    error: writeError 
+  } = useWriteContract()
+  
   const [games, setGames] = useState<Game[]>([])
   const [formData, setFormData] = useState<Game>({
     championName: '',
@@ -27,9 +42,18 @@ export default function GamesPage() {
   })
   const [editingId, setEditingId] = useState<number | null>(null)
 
+
+  //...........................................................//
+ 
+
+  //...........................................................//
   useEffect(() => {
+    if ( isConnected){
     loadGames()
-  }, [])
+    }
+  }, [isConnected])
+
+  
 
   const loadGames = async () => {
     try {
@@ -38,10 +62,11 @@ export default function GamesPage() {
       setGames(data)
     }
     catch (error) {
-      console.error('Erro ao carregar as Games', error)
+      console.error('Erro ao carregar os Games', error)
     }
   }
 
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -49,6 +74,26 @@ export default function GamesPage() {
     const url = '/api/games'
     const method = editingId ? 'PUT' : 'POST'
     const body = editingId ? { id: editingId, ...formData } : formData
+    const contractHook = editingId ? writeContract({
+        address: POLICHAIN_ADDRESS,
+        abi: PolichainABI,
+        functionName: 'updateGame',
+        args: [BigInt(editingId),formData.championName, formData.role, BigInt(formData.kills), BigInt(formData.deaths), BigInt(formData.assists), formData.result],
+      }) : writeContract(
+    {
+      address: POLICHAIN_ADDRESS,
+      abi: PolichainABI,
+      functionName: 'createGame',
+      args: [
+        formData.championName, 
+        formData.role, 
+        BigInt(formData.kills), 
+        BigInt(formData.deaths), 
+        BigInt(formData.assists), 
+        formData.result
+      ],
+    }
+    )
 
     const response = await fetch(url, {
       method,
@@ -60,6 +105,73 @@ export default function GamesPage() {
       loadGames()
     }
   }
+
+    /*if (method == 'POST') {
+    writeContract(
+    {
+      address: POLICHAIN_ADDRESS,
+      abi: PolichainABI,
+      functionName: 'createGame',
+      args: [
+        formData.championName, 
+        formData.role, 
+        BigInt(formData.kills), 
+        BigInt(formData.deaths), 
+        BigInt(formData.assists), 
+        formData.result
+      ],
+    }
+    );
+ 
+}
+    else{
+      editingId
+      writeContract({
+        address: POLICHAIN_ADDRESS,
+        abi: PolichainABI,
+        functionName: 'updateGame',
+        args: [BigInt(editingId),formData.championName, formData.role, BigInt(formData.kills), BigInt(formData.deaths), BigInt(formData.assists), formData.result],
+      });
+    }
+   
+  }*/
+  
+  
+  const [numeroPartidas, setNumeroPartidas] = useState<number>(0)
+  const [newNumeroPartidas, setNewNumeroPartidas] = useState<string>('');
+  const {data: stats, isLoading, error, refetch} = useReadContract({
+    address: POLICHAIN_ADDRESS,
+    abi: PolichainABI,
+    functionName: 'CalculaWinKda',
+    args: [BigInt(numeroPartidas)],
+    query: {
+      enabled: BigInt(numeroPartidas) > 0,
+    }
+  })
+
+  const [winrate, kda] = stats ? [BigInt(stats[0]), BigInt(stats[1])] : [0,0];
+
+  const handleInput = async (e: React.ChangeEvent<HTMLInputElement>) =>{
+    setNewNumeroPartidas(e.target.value);
+  };
+
+  const calculaEstat = () => {
+      const parsedValue = parseInt(newNumeroPartidas);
+      if(!isNaN(parsedValue) && parsedValue > 0){
+        setNumeroPartidas(parsedValue);
+        refetch();
+      }
+      else{
+        alert("Por favor, escolha um valor valido");
+      }
+      };
+
+      console.log('[DEBUG] numeroPartidas:', numeroPartidas);
+  console.log('[DEBUG] newNumeroPartidas:', newNumeroPartidas);
+  console.log('[DEBUG] stats (data):', stats);
+  console.log('[DEBUG] isLoading:', isLoading);
+  console.log('[DEBUG] error:', error);
+
 
   const handleEdit = (Game: Game) => {
     setFormData({
@@ -80,6 +192,20 @@ export default function GamesPage() {
         loadGames()
       }
     }
+  }
+
+  if (!isConnected) {
+    return (
+      
+        <main className= "min-h-screen flex flex-col items-center justify-center">
+          <h1 className='text-3xl font-bold mn-8'>
+              Conecte sua Carteira
+          </h1>
+          <p className='text-gray-608 mb-8'>Para acessar a pagina, conecte sua carteira Web3</p>
+          <ConnectButton />
+          </main>
+    
+      );
   }
 
 
@@ -337,8 +463,45 @@ export default function GamesPage() {
               </button>
 
             </div>
-          </div>
+
+            </div>
         </form>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+                    <label style={{ fontSize: 18 }}>Calculadora de WinRate e KDA</label>
+                    <input
+                    type="number"
+                    min="0"
+                    value={newNumeroPartidas}
+                    onChange={handleInput}
+                    placeholder="Digite o numero de partidas que deseja abranger"
+                    style={{
+                        width: '80px',
+                        height: '40px',
+                        fontSize: 20,
+                        textAlign: 'center',
+                        border: 'solid 2px #333',
+                        borderRadius: '10px',
+                        fontWeight: 600
+                    }}
+                  />
+            </div>
+            <button
+                      type = "button"
+                      onClick={calculaEstat}
+                      style={{ width: '120px', height: '45px', cursor: 'pointer', borderRadius: '10px', fontSize: 22 }}
+                      className='bg-sk bg-sky-800 hover:bg-sky-950'
+                    >
+                      Calcular
+                    </button>
+          {isLoading && <p>Carregando...</p>}
+      {error && <p>Erro ao consultar o contrato</p>}
+
+      {!isLoading && !error && numeroPartidas > 0 && (
+        <div>
+          <p>Winrate: {winrate}%</p>
+          <p>KDA: {kda}</p>
+        </div>
+      )}
         <div>
           <table style={{ tableLayout: 'auto' }}>
             <thead>
@@ -411,3 +574,4 @@ export default function GamesPage() {
   );
 
 }
+
